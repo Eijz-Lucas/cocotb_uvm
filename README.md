@@ -11,13 +11,13 @@
 
 | 基类名称           | 核心职责       | 说明                                                                                                                                         |
 | :----------------- | :------------- | :------------------------------------------------------------------------------------------------------------------------------------------- |
-| `BaseTransaction`  | 数据事务抽象   | 贯穿整个验证环境的底层数据结构。各个组件（Monitor、Model、Scoreboard）之间传递的 payload，子类需重写 `__eq__` 方法以支持自动比对。自带 `id` 字段用于追踪。 |
+| `BaseTransaction`  | 数据事务抽象   | 贯穿整个验证环境的底层数据结构。各个组件（Monitor、Model、Scoreboard）之间传递的 payload，自带 `id` 字段用于追踪。 |
 | `BaseModel`        | 软件参考模型   | 纯软件的 Golden Model。通过监听输入队列获取激励，执行计算（`compute` 方法），并将预期结果 (Expected Transaction) 输出至 Scoreboard。                  |
 | `BaseDriver`       | 硬件驱动器     | 负责在 UT 模式下将事务转换为具体的引脚时序信号，驱动 DUT (Device Under Test)。                                                                        |
-| `BaseMonitor`      | 硬件监听器     | 包含输入与输出监听器。通过 `@always_sample_next` 装饰器持续在时钟沿采样 DUT 信号，组装成 Transaction 并送入队列供 Model 或 Scoreboard 使用。          |
-| `BaseScoreboard`   | 自动比对计分板 | 接收实际输出 (Actual) 与预期输出 (Expected) 队列，执行严格比对（调用 `BaseTransaction.__eq__`），统计 Match/Error 数量。                                |
-| `BaseSequence`     | 事务序列生成器 | 可迭代的事务序列抽象基类。子类实现 `__next__` 方法以定义事务生成逻辑，配合 `BaseSequencer` 向 Driver 注入激励。                                        |
-| `BaseSequencer`    | 事务序列调度器 | 管理事务队列，从多个 `BaseSequence` 中拉取事务并派发给 executor（如 Driver）执行。支持多序列并行注入。                                               |
+| `BaseMonitor`      | 硬件监听器     | 包含输入与输出监听器。持续在时钟沿采样 DUT 信号，组装成 Transaction 并送入队列供 Model 或 Scoreboard 使用。          |
+| `BaseScoreboard`   | 自动比对计分板 | 接收实际输出 (Actual) 与预期输出 (Expected) 队列，执行严格比对，统计 Match/Error 数量。                                |
+| `BaseSequence`     | 事务序列生成器 | 可迭代的事务序列抽象基类。子类实现 `__next__` 方法以定义事务生成逻辑，配合 `BaseSequencer` 向executor(带有execute方法的鸭子类型)注入激励。                                        |
+| `BaseSequencer`    | 事务序列调度器 | 管理事务队列，从多个 `BaseSequence` 中拉取事务并派发给 executor(带有execute方法的鸭子类型)执行。支持多序列并行注入，可自定义仲裁逻辑。                                               |
 | `CoSimBase`        | 模块级协同封装 | 验证组件的顶层容器。负责将 Model、Driver、Monitors 和 Scoreboard 实例化并绑定到特定的 DUT 模块，提供统一的 `execute()` 接口。支持 HW/SW 双模式和 UT/ST 双级别。 |
 | `CoSimWrapperBase` | 系统级环境封装 | 宏观验证环境封装类。负责管理多个 `CoSimBase` / `CoSimWrapperBase` 实例以及系统级的共享资源（如 RAM、FIFO 软模型），并根据固件指令进行任务分发与路由。支持嵌套。 |
 | `SimLogger`        | 日志管理器     | 单例模式的仿真日志配置类。集中管理 root logger 与 cocotb logger 的级别、格式、过滤器及文件输出。                                                       |
@@ -77,7 +77,8 @@
 框架支持通过“固件指令 (Firmware Instructions)”的形式驱动测试，这极大地方便了软硬件协同场景下的用例编写。
 
 ### 测试用例编写 (Firmware-Driven)
-在 `test_cosim_test.py` 中，测试用例被定义为一个包含操作码、地址和长度等信息的字典列表：
+在 `test_cosim_test.py` 中，提供了2种测试用例：
+* 方式一：测试用例被定义为一个包含操作码、地址和长度等信息的字典列表：
 
 ```python
 firmware = [
@@ -88,6 +89,8 @@ firmware = [
 ```
 
 测试入口通过 `sys_ctrl` 模块按序解析并派发这些指令给底层的包装器执行。
+
+* 方式二：测试用例通过`cosim_test_squence`生成，这是一个记录当前fifo状态的迭代器，可以随机生成指定数量的激励或者从文件中读取指令产生激励
 
 ### UT/ST 双模式切换
 该框架通过环境变量 `ST` 实现了单元测试与系统测试的一键切换：
@@ -205,7 +208,7 @@ def always_sample_next(time: int = 10, unit: str = "ns"):
 
 验证框架提供了可选的Sequence和Sequencer组件。
 Sequence是一个迭代器用于根据规则产生激励(例如Sequence用于记录硬件的状态产生约束条件下的随机激励)，设置为迭代器是出于大规模测试下节约内存。Sequence也可以扩展功能例如将激励写入文件或从文件中读取激励。
-Sequencer组件用于将若干个Sequence产生的激励输入到Cosim类或CosimWrapper类，Sequencer内包含一个Queue用于缓冲，也可以在其中设置仲裁逻辑控制多个Sequence下激励的驱动顺序。Sequencer组件提供一个run方法作为接口连接
+Sequencer组件用于将若干个Sequence产生的激励输入到Cosim类或CosimWrapper类，Sequencer内包含一个Queue用于缓冲，也可以在其中设置仲裁逻辑控制多个Sequence下激励的驱动顺序。Sequencer组件提供一个run方法作为接口连接sequence和executor，executor是一个带有execute方法的鸭子类型，可以是Cosim类、CosimWrapper类，或是其他自定义带有execute方法的类。
 
 ### memory处理
 
