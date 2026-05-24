@@ -1,1 +1,0 @@
-"""Local cocotb test package."""

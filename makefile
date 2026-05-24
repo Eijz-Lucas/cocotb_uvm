@@ -1,4 +1,9 @@
 ST = 
+
+clean_build-%:
+	@rm -rf ./builds/sim_build_$*
+	@rm -f ./builds/results_$*.xml ./builds/.st_mode_$*
+
 ctb-%:
 	$(eval SIM_TOP := $*)
 	@echo "======= cocotb SIM_TOP = $(SIM_TOP) ======="
@@ -15,4 +20,4 @@ ctb-%:
 		echo "$(ST)" > ./builds/.st_mode_$(SIM_TOP); \
 	fi
 	@# 3. 调用底层的 cocotb makefile
-	$(MAKE) -f test/tb/ctb.mk SIM_TOP=$(SIM_TOP) ST=$(ST)
+	$(MAKE) -f examples/cosim_test/tb/ctb.mk SIM_TOP=$(SIM_TOP) ST=$(ST)

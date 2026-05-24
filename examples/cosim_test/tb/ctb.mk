@@ -8,7 +8,7 @@ SIM ?= verilator
 TOPLEVEL_LANG ?= verilog
 SIM_TOP ?= top
 
-VERILOG_SOURCES += $(shell ./utils/expand_list.sh ./test/rtl/$(SIM_TOP).f)
+VERILOG_SOURCES += $(shell ./utils/expand_list.sh ./examples/cosim_test/rtl/$(SIM_TOP).f)
 # use VHDL_SOURCES for VHDL files
 
 # default args
@@ -21,7 +21,7 @@ endif
 COCOTB_TOPLEVEL = $(SIM_TOP)
 
 # COCOTB_TEST_MODULES is the basename of the Python test file(s)
-COCOTB_TEST_MODULES = test.tb.test_$(SIM_TOP)
+COCOTB_TEST_MODULES = examples.cosim_test.tb.test_$(SIM_TOP)
 COCOTB_RESULTS_FILE = builds/results_$(SIM_TOP).xml
 SIM_BUILD = builds/sim_build_$(SIM_TOP)
 export PYTHONPATH := $(abspath src):$(PYTHONPATH)

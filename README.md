@@ -30,12 +30,12 @@
 
 * **`add_one` 模块 (加一计算单元)**：
     * **行为**：收到启动指令后，根据给定的基地址 (`addr`) 和长度 (`len`) 从 RAM 中读取数据，将所有读取的数据加 1，并写入后级的 FIFO 中。
-    * **验证实现**：对应 `add_one_cosim.py`。包含自定义的事务 `add_one_input_trans` 和 `add_one_output_trans`，以及精准模拟其行为的纯软件模型。
+    * **验证实现**：对应 `examples/cosim_test/tb/add_one_cosim.py`。包含自定义的事务 `add_one_input_trans` 和 `add_one_output_trans`，以及精准模拟其行为的纯软件模型。
 * **`sub_one` 模块 (减一计算单元)**：
     * **行为**：收到启动指令后，根据给定的长度 (`len`) 从前级 FIFO 中读取数据，将数据减 1，并推入系统的输出侧。
-    * **验证实现**：对应 `sub_one_cosim.py`。同样实现了专用的软硬件事务与驱动模型。
+    * **验证实现**：对应 `examples/cosim_test/tb/sub_one_cosim.py`。同样实现了专用的软硬件事务与驱动模型。
 * **存储系统 (`memory.py`)**：
-    * 包含高度参数化的 `RAM` 和 `FIFO` Python 软模型。在测试平台中作为“共享资源”被 `cosim_test_wrapper` 实例化，用于捕获 DUT 内的存储状态，并在纯软件执行模式 (SW mode) 下提供数据源。
+    * 包含高度参数化的 `RAM` 和 `FIFO` Python 软模型。在测试平台中作为“共享资源”被 `examples/cosim_test/tb/cosim_test_wrapper.py` 实例化，用于捕获 DUT 内的存储状态，并在纯软件执行模式 (SW mode) 下提供数据源。
 
 ```
          +-----------------------------------------------------------------------+
@@ -77,7 +77,7 @@
 框架支持通过“固件指令 (Firmware Instructions)”的形式驱动测试，这极大地方便了软硬件协同场景下的用例编写。
 
 ### 测试用例编写 (Firmware-Driven)
-在 `test_cosim_test.py` 中，提供了2种测试用例：
+在 `examples/cosim_test/tb/test_cosim_test.py` 中，提供了2种测试用例：
 * 方式一：测试用例被定义为一个包含操作码、地址和长度等信息的字典列表：
 
 ```python
