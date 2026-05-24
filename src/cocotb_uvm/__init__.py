@@ -21,3 +21,5 @@ __all__ = [
     "always_sample_next",
     "connect_check",
 ]
+
+__version__ = "0.1.0"
