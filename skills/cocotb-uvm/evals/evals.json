@@ -1,0 +1,69 @@
+{
+  "skill_name": "cocotb-uvm",
+  "evals": [
+    {
+      "id": 1,
+      "prompt": "I need to verify a module called 'multiply_add' with these ports:\n\nInput: clk, rst_n, en, [31:0] op_a, [31:0] op_b, [31:0] op_c\nOutput: busy, [31:0] result\n\nThe module computes (op_a * op_b + op_c) when en=1. It sets busy=1 while computing and busy=0 when done. The result appears on the 'result' output when busy goes low.\n\nPlease build a complete cocotb_uvm verification environment for this.",
+      "expected_output": "A complete verification environment with PascalCase class names: MultiplyAddInputTransaction (op_a, op_b, op_c fields), MultiplyAddOutputTransaction (result field), MultiplyAddModel computing a*b+c, MultiplyAddDriver driving en/op_a/op_b/op_c, input and output monitors, MultiplyAddScoreboard, MultiplyAddCoSim, and a test entry point.",
+      "files": [],
+      "expectations": [
+        "Generates an input transaction dataclass with fields for op_a, op_b, op_c",
+        "Generates an output transaction dataclass with a field for result",
+        "Transactions include clear(), empty(), __eq__(), and copy() methods",
+        "Reference model correctly computes (op_a * op_b + op_c)",
+        "Driver drives en, op_a, op_b, op_c signals on the DUT",
+        "Output monitor samples the result signal after busy goes low",
+        "Scoreboard compares actual and expected transactions",
+        "CoSimBase wires together model, driver, input_monitor, output_monitor, scoreboard",
+        "Test file includes clock generation and reset sequence",
+        "Test file defines a BaseSequence subclass for stimulus generation",
+        "Test file calls sequencer.run(), wait_for_completion(), report(), and assert success",
+        "All files use correct imports from cocotb_uvm",
+        "Class names use PascalCase (e.g. MultiplyAddDriver, not multiply_add_driver)",
+        "Sequence __next__ returns flexible item types (dict or dataclass)"
+      ]
+    },
+    {
+      "id": 2,
+      "prompt": "帮我在cocotb里搭建一个 popcount 模块的验证环境。模块功能是统计一个32位输入中1的个数，输出是6位的popcount结果。端口有：input clk, rst_n, in_valid, [31:0] data_in; output out_valid, [5:0] pop_count。当 in_valid=1 时采样 data_in，处理完后 out_valid=1 一个周期并输出结果。用 cocotb_uvm 来做。",
+      "expected_output": "Complete popcount verification environment with PascalCase naming: PopcountInputTransaction (data_in field), PopcountOutputTransaction (pop_count field), PopcountModel computing bit count, PopcountDriver driving in_valid/data_in, PopcountInputMonitor/PopcountOutputMonitor tracking valid handshake, PopcountScoreboard, PopcountCoSim, and test entry point.",
+      "files": [],
+      "expectations": [
+        "Generates a popcount input transaction with data_in field",
+        "Generates a popcount output transaction with pop_count field",
+        "Transactions include clear(), empty(), __eq__(), and copy() methods",
+        "Reference model correctly computes popcount (bit count of data_in)",
+        "Driver drives in_valid and data_in signals",
+        "Input monitor samples data_in when in_valid is high",
+        "Output monitor captures pop_count when out_valid is high",
+        "Scoreboard compares actual and expected popcount results",
+        "CoSimBase wires together all five component classes",
+        "Test file includes clock generation and reset sequence",
+        "Test file calls sequencer.run(), wait_for_completion(), report(), assert success, teardown",
+        "All files use correct imports from cocotb_uvm",
+        "Class names use PascalCase (e.g. PopcountDriver, not popcount_driver)",
+        "The prompt was in Chinese but generated code uses English identifiers"
+      ]
+    },
+    {
+      "id": 3,
+      "prompt": "I have two modules that I need to verify together as a system:\n\nModule 'encoder':\n  Input: clk, rst_n, start, [7:0] raw_data\n  Output: busy, done, [3:0] encoded_len, [127:0] encoded_data\n  Takes raw_data when start=1, encodes it (run-length encoding), outputs encoded_len and encoded_data when done=1.\n\nModule 'decoder':\n  Input: clk, rst_n, start, [3:0] encoded_len, [127:0] encoded_data\n  Output: busy, done, [7:0] decoded_data\n  Takes encoded data when start=1, decodes it, outputs decoded_data when done=1.\n\nIn system test mode, encoder's encoded_len/encoded_data connect directly to decoder's encoded_len/encoded_data at the top level. In unit test mode, I need a FIFO model between them.\n\nPlease build the complete cocotb_uvm verification environment with both modules and a wrapper.",
+      "expected_output": "A multi-module verification environment with PascalCase naming. EncoderCoSim/DecoderCoSim each with their own transactions, models, drivers, monitors, scoreboards. A CoSimWrapperBase coordinating both. ST mode passes top-level signal handles through wrapper→cosim→driver chain. UT mode uses FIFO model passed to monitor's run() for sampling.",
+      "files": [],
+      "expectations": [
+        "Defines input and output transactions for BOTH encoder and decoder modules",
+        "Encoder model implements run-length encoding computation",
+        "Decoder model implements run-length decoding computation",
+        "Both modules have driver, input monitor, and output monitor classes",
+        "Each module has its own CoSimBase subclass",
+        "A CoSimWrapperBase subclass coordinates both modules",
+        "Includes a software FIFO model for unit test inter-module communication",
+        "In ST mode, wrapper passes top-level signal handles to cosim.execute() which forwards to driver.run()",
+        "In UT mode, FIFO model is passed to output monitor for encapsulated signal sampling",
+        "Test file has separate module_specs for ut and st configurations",
+        "All components use correct cocotb_uvm imports and inheritance",
+        "Class names use PascalCase (e.g. EncoderDriver, not encoder_driver)"
+      ]
+    }
+  ]
+}

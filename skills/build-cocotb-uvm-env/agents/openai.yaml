@@ -1,0 +1,4 @@
+interface:
+  display_name: "Build cocotb_uvm Env"
+  short_description: "Use cocotb_uvm to build cocotb verification envs"
+  default_prompt: "Use $build-cocotb-uvm-env to build a cocotb verification environment with the local cocotb_uvm library."
