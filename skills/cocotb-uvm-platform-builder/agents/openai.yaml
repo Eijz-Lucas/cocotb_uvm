@@ -1,4 +1,4 @@
 interface:
-  display_name: Cocotb UVM Platform Builder
-  short_description: Build cocotb_uvm platforms
-  default_prompt: Use this skill to design and implement layered verification environments with cocotb_uvm, choosing between module-level CoSim and top-level CoSimWrapper based on the user request.
+  display_name: "Cocotb UVM Platform Builder"
+  short_description: "Build cocotb_uvm verification platforms"
+  default_prompt: "Use $cocotb-uvm-platform-builder to build or extend a cocotb_uvm testbench, choosing the correct module-level CoSim or top-level CoSimWrapper layers from the user request."
