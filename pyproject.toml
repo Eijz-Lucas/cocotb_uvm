@@ -38,6 +38,7 @@ examples = [
 [dependency-groups]
 dev = [
     "pytest>=8.0.0",
+    "pyyaml>=6.0.3",
 ]
 
 [build-system]
